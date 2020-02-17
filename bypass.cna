@@ -1,5 +1,9 @@
 popup attacks{
-	item("&ByassAV",{Generator();});
+	item("&BypassAV",{Generator();});
+}
+
+bind Ctrl+G{
+	Generator();
 }
 
 sub Generator{

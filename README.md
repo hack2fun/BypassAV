@@ -11,7 +11,7 @@
 
 ![img](./img/2.png)
 
-用法：导入之后，位置在：`attack` -> `BypassAV`
+用法：导入之后，位置在：`attack` -> `BypassAV`，快捷键：`Ctrl+G`
 
 ![img](./img/3.gif)
 
