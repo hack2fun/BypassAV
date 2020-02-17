@@ -41,7 +41,7 @@ sub build{
 		$handle = openf(">temp.go");
 		writeb($handle, $code);
 		closef($handle);
-		exec("go build -o  $+ $1 temp.go");
+		exec("export GOOS=windows&&export GOARCH=amd64&&go build -o  $+ $1 temp.go");
 		show_message("save to  $+ $1");
     });
 

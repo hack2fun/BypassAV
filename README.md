@@ -17,4 +17,12 @@
 
 如果你生成的马被杀了，可以重新生成一个，因为key是随机的或者你改一下代码把key改为你想要的也可以。
 
+因为Sleep貌似不能获取和设置环境变量，所以如果是linux和Mac OS的同学请自行编译，生成之后到cs的目录下编译 /捂脸
+
+```sh
+export GOOS=windows
+export GOARCH=amd64
+go build temp.go
+```
+
 **注：** 用go打包体积可能会有点大（1.2M左右），可以用upx压缩一下，大概能压缩到600kb左右那样子
