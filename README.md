@@ -25,4 +25,8 @@ export GOARCH=amd64
 go build temp.go
 ```
 
+如图：
+
+![img](./img/4.gif)
+
 **注：** 用go打包体积可能会有点大（1.2M左右），可以用upx压缩一下，大概能压缩到600kb左右那样子
