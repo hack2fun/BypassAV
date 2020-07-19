@@ -5,28 +5,14 @@
 
 免杀效果如下图：
 
-[http://r.virscan.org/language/zh-cn/report/7e2b37c3f31d65c953f0d9401024d1e6](http://r.virscan.org/language/zh-cn/report/7e2b37c3f31d65c953f0d9401024d1e6)
-
-![img](./img/1.png)
-
 ![img](./img/2.png)
 
 用法：导入之后，位置在：`attack` -> `BypassAV`，快捷键：`Ctrl+G`
 
 ![img](./img/3.gif)
 
-如果你生成的马被杀了，可以重新生成一个，因为key是随机的或者你改一下代码把key改为你想要的也可以。
+## 2020/7/19更新
 
-因为Sleep貌似不能获取和设置环境变量，所以如果是linux和Mac OS的同学请自行编译，生成之后到cs的目录下编译 /捂脸
-
-```sh
-export GOOS=windows
-export GOARCH=amd64
-go build temp.go
-```
-
-如图：
-
-![img](./img/4.gif)
+更新了弹出的黑窗口问题和Linux/Mac上不能生成问题以及修复一些bug，建议生成64位的，32位的vt上查杀有点多（不过360全家桶、火绒那些还是可以过的）
 
 **注：** 用go打包体积可能会有点大（1.2M左右），可以用upx压缩一下，大概能压缩到600kb左右那样子

